@@ -60,17 +60,17 @@ class DependentActor(CBPiActor):
         pass
 
 
-@parameters([Property.Actor(label="Actor", description="Select an actor which is triggered by this group."),
-            Property.Select(label="Action", options=["on","off"], description="Actor is switched on or off dependent on other actors in group."),
+@parameters([Property.Actor(label="Actor", description="Select a targetactor which is triggered by this group."),
+            Property.Select(label="Action", options=["on","off"], description="Targetactor is switched on or off dependent on other actors in group."),
              Property.Select(label="Logic", options=["OR","AND"], description="Actor is triggered if all (AND) or one actor (OR) of the group is ON."),
-            Property.Actor(label="Actor01", description="Select an actor which triggers this actor."),
-            Property.Actor(label="Actor02", description="Select an actor which triggers this actor."),
-            Property.Actor(label="Actor03", description="Select an actor which triggers this actor."),
-            Property.Actor(label="Actor04", description="Select an actor which triggers this actor."),
-            Property.Actor(label="Actor05", description="Select an actor which triggers this actor."),
-            Property.Actor(label="Actor06", description="Select an actor which triggers this actor."),
-            Property.Actor(label="Actor07", description="Select an actor which triggers this actor."),
-            Property.Actor(label="Actor08", description="Select an actor which triggers this actor.")])
+            Property.Actor(label="Actor01", description="Select an actor which triggers targetactor."),
+            Property.Actor(label="Actor02", description="Select an actor which triggers targetactor."),
+            Property.Actor(label="Actor03", description="Select an actor which triggers targetactor."),
+            Property.Actor(label="Actor04", description="Select an actor which triggers targetactor."),
+            Property.Actor(label="Actor05", description="Select an actor which triggers targetactor."),
+            Property.Actor(label="Actor06", description="Select an actor which triggers targetactor."),
+            Property.Actor(label="Actor07", description="Select an actor which triggers targetactor."),
+            Property.Actor(label="Actor08", description="Select an actor which triggers targetactor.")])
 class ConditionalActor(CBPiActor):
 
     async def on_start(self):
@@ -116,6 +116,13 @@ class ConditionalActor(CBPiActor):
     async def run(self):
         while self.running == True:
             statesum = 0
+
+            targetactor = self.cbpi.actor.find_by_id(self.switch)
+            try:
+                targetstatus=targetactor.instance.state
+            except:
+                targetstatus=False            
+
             for actor in self.actors:
                 currentactor=self.cbpi.actor.find_by_id(actor)
                 try:
@@ -129,34 +136,34 @@ class ConditionalActor(CBPiActor):
                 logging.info("AND")
                 if statesum == self.numberactors:
                     if self.actoractivity:
-                        if self.state == False:
+                        if self.state == False or targetstatus == False:
                             await self.on()
                     else:
-                        if self.state == True:
+                        if self.state == True or targetstatus == True:
                             await self.off()
                 else:
                     if self.actoractivity:
-                        if self.state == True:
+                        if self.state == True or targetstatus == True:
                             await self.off()
                     else:
-                        if self.state == False:
+                        if self.state == False or targetstatus == False:
                             await self.on()
             # OR for logic
             if not self.grouplogic:
                 logging.info("OR")
                 if statesum != 0:
                     if self.actoractivity:
-                        if self.state == False:
+                        if self.state == False or targetstatus == False:
                             await self.on()
                     else:
-                        if self.state == True:
+                        if self.state == True or targetstatus == True:
                             await self.off()
                 else:
                     if self.actoractivity:
-                        if self.state == True:
+                        if self.state == True or targetstatus == True:
                             await self.off()
                     else:
-                        if self.state == False:
+                        if self.state == False or targetstatus == False:
                             await self.on()
 
             await self.cbpi.actor.ws_actor_update()
