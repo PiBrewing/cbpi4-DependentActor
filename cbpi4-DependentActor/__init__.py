@@ -16,14 +16,19 @@ class DependentActor(CBPiActor):
 
     async def on_start(self):
         self.state = False
+        self.power=100
         self.base = self.props.get("Base", None)
+        if self.base:
+            await self.cbpi.actor.off(self.base)
         self.ActorDependency = self.props.get("ActorDependency", None)
         self.dependency_type = self.props.get("DependencyType", "Prerequisite")
         self.notification = self.props.get("notification", "Yes")
-        self.init = False
         pass
 
-    async def on(self, power=0):
+    async def on(self, power=None):
+        if power is not None:
+            self.power=power
+
         ActorDependency = self.cbpi.actor.find_by_id(self.ActorDependency)
         try:
             ActorDependencyState = ActorDependency.instance.state
@@ -31,32 +36,40 @@ class DependentActor(CBPiActor):
             ActorDependencyState = False
 
         if (ActorDependencyState == False) & (self.dependency_type == "Restriction"):
-            await self.cbpi.actor.on(self.base)
+            await self.cbpi.actor.on(self.base, self.power)
             self.state = True
         elif (ActorDependencyState == True) & (self.dependency_type == "Prerequisite"):
-            await self.cbpi.actor.on(self.base)
+            await self.cbpi.actor.on(self.base, self.power)
             self.state = True
         else:
-            await self.cbpi.actor.off(self.base)
-            self.state = False
+            self.state=False
+            await self.off()
             if self.notification == "Yes":
                 self.cbpi.notify("Powering of Actor prevented", "This is due to the current power state of it's dependency %s" %(ActorDependency.name) ,NotificationType.ERROR)
-
 
     async def off(self):
         logger.info("ACTOR %s OFF " % self.base)
         await self.cbpi.actor.off(self.base)
         self.state = False
+        await self.cbpi.actor.ws_actor_update()
 
     def get_state(self):
         return self.state
     
     async def run(self):
-        if self.init == False:
-            if self.base is not None:
-                await self.cbpi.actor.off(self.base)
-                self.state = False
-            self.init = True
+        #if self.init == False:
+        #    if self.base is not None:
+        #        await self.cbpi.actor.off(self.base)
+        #        self.state = False
+        #    self.init = True
+        while self.running:
+            await self.cbpi.actor.ws_actor_update()
+            await asyncio.sleep(2)
+        pass
+
+    async def set_power(self, power):
+        self.power=power
+        await self.cbpi.actor.set_power(self.base, self.power)
         pass
 
 
