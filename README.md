@@ -13,7 +13,7 @@ The packages contains two plugins.
 ### Installation:
 
 You can install it directly via pypi.org:	
-- sudo pip3 install cbpi4-DependentActor
+- sudo pip3 install cbpi4-DependentActor (!!!NOT YET AVAILABLE!!!)
 
 Alternativeley you can install (or clone) it from the GIT Repo. In case of updates, you will find them here first:
 - sudo pip3 install https://github.com/PiBrewing/cbpi4-DependentActor/archive/main.zip
