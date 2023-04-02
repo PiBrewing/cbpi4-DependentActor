@@ -114,8 +114,8 @@ class ConditionalActor(CBPiActor):
             logging.error(e)
         self.numberactors=len(self.actors)
         
-    async def on(self, power=0):      
-        self.power=0
+    async def on(self, power=100):      
+        self.power=power
         self.state = True
         await self.cbpi.actor.on(self.switch,self.power)
 

@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='cbpi4-DependentActor',
-      version='0.0.4',
+      version='0.0.5',
       description='CraftBeerPi4 Actor Plugin to create dependencies or conditions on other actors',
       author='Alexander Vollkopf',
       author_email='avollkopf@web.de',

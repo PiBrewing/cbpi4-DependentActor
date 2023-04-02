@@ -57,5 +57,6 @@ This plugin is not a substitute for properly rated hardware components and safet
 
 ### Changelog
 
+- 02.04.23: (0.0.5) Fixed bug in conditional actor as the target actor was switched on with 0 power
 - 11.03.23: (0.0.4) Fixed Bugs in dependent actor and added conditional actor
 - (0.0.1) Initial commit, Testing of port
